@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Organizador de Mods · Minecraft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{
+  --bg:#0b0c12; --panel:#14151f; --panel2:#191b28; --line:#262838;
+  --text:#e8e9f2; --sub:#8d90ab;
+  --cyan:#54d9d0; --cyan-dim:#1e3a3a;
+  --gold:#e3a458; --gold-dim:#3a3121;
+  --violet:#9a8cff; --violet-dim:#282247;
+  --danger:#e2607a;
+  --radius:10px;
+  padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100%}
+h1,.mono{font-family:'JetBrains Mono',monospace}
+header{padding:28px 24px 18px;border-bottom:1px solid var(--line)}
+h1{margin:0 0 4px;font-size:1.4rem;font-weight:700;letter-spacing:.2px}
+header p{margin:0;color:var(--sub);font-size:.92rem}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px 60px}
+.banner{margin-top:18px;background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--cyan);border-radius:8px;padding:10px 14px;font-size:.8rem;color:var(--sub);line-height:1.5}
+.drop{margin-top:18px;border:2px dashed var(--line);border-radius:var(--radius);padding:34px 20px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.drop.drag{border-color:var(--cyan);background:var(--cyan-dim)}
+.drop strong{color:var(--cyan)}
+.drop small{display:block;margin-top:6px;color:var(--sub)}
+#fileInput{display:none}
+.settings{display:flex;gap:10px;align-items:center;margin:14px 0;flex-wrap:wrap;font-size:.8rem;color:var(--sub)}
+.settings input{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:7px 10px;border-radius:8px;font-size:.8rem;min-width:260px}
+.stats{display:flex;gap:14px;margin:20px 0;flex-wrap:wrap;overflow-x:auto}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:10px 16px;min-width:90px}
+.stat b{display:block;font-size:1.3rem;font-family:'JetBrains Mono',monospace}
+.stat span{color:var(--sub);font-size:.78rem}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 18px;border-bottom:1px solid var(--line);padding-bottom:14px}
+.tab{background:none;border:1px solid var(--line);color:var(--sub);padding:8px 14px;border-radius:999px;cursor:pointer;font-size:.85rem;font-family:inherit}
+.tab.active{background:var(--panel2);color:var(--text);border-color:var(--cyan)}
+.tab .n{opacity:.7;margin-left:4px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.toolbar input{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem;min-width:200px}
+.actions button{background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:8px 14px;border-radius:8px;font-size:.85rem;cursor:pointer;margin-left:8px}
+.actions button:hover{border-color:var(--cyan)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:8px}
+.card.unclass{border-color:var(--gold-dim)}
+.card.checking{border-color:var(--cyan-dim)}
+.card-top{display:flex;justify-content:space-between;gap:8px}
+.card-name{font-weight:600;font-size:.95rem;overflow-wrap:anywhere}
+.card-file{color:var(--sub);font-size:.72rem;font-family:'JetBrains Mono',monospace;overflow-wrap:anywhere}
+.badge{font-size:.68rem;padding:3px 8px;border-radius:999px;white-space:nowrap;height:fit-content}
+.b-client{background:var(--violet-dim);color:var(--violet)}
+.b-server{background:#2a2140;color:#c9a8ff}
+.b-both{background:var(--cyan-dim);color:var(--cyan)}
+.b-unclass{background:var(--gold-dim);color:var(--gold)}
+.meta{display:flex;gap:10px;flex-wrap:wrap;font-size:.76rem;color:var(--sub)}
+.meta span b{color:var(--text);font-weight:500}
+.src{font-size:.68rem;color:var(--sub);display:inline-flex;align-items:center;gap:5px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--sub)}
+.dot.local{background:var(--cyan)}
+.dot.modrinth{background:#1bd96a}
+.dot.curseforge{background:#f16436}
+.checking-row{font-size:.74rem;color:var(--cyan);display:flex;align-items:center;gap:6px}
+.spinner{width:11px;height:11px;border:2px solid var(--cyan-dim);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.manual-links{display:flex;gap:8px;flex-wrap:wrap;font-size:.72rem}
+.manual-links a{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold)}
+.mr-search{border-top:1px solid var(--line);padding-top:8px;margin-top:2px}
+.mr-search-row{display:flex;gap:6px}
+.mr-input{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:6px 9px;border-radius:6px;font-size:.76rem;min-width:0}
+.mr-go{background:#173c37;border:1px solid #1bd96a55;color:#7be8ab;padding:6px 10px;border-radius:6px;font-size:.72rem;cursor:pointer;white-space:nowrap}
+.mr-go:hover{border-color:#1bd96a}
+.mr-hint{font-size:.68rem;color:var(--sub);margin-top:4px}
+.mr-results{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.mr-result{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mr-result-name{font-size:.8rem;font-weight:600}
+.mr-result-desc{font-size:.7rem;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:230px}
+.mr-use{background:none;border:1px solid #1bd96a55;color:#7be8ab;padding:5px 10px;border-radius:6px;font-size:.7rem;cursor:pointer;white-space:nowrap}
+.mr-empty{font-size:.72rem;color:var(--sub)}
+.warn{color:var(--danger);font-size:.72rem}
+.move{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap}
+.move button{flex:1;min-width:56px;background:var(--panel2);border:1px solid var(--line);color:var(--sub);padding:6px 4px;border-radius:6px;font-size:.72rem;cursor:pointer}
+.move button.on{color:var(--text);border-color:currentColor}
+.move .m-client.on{color:var(--violet)}
+.move .m-server.on{color:#c9a8ff}
+.move .m-both.on{color:var(--cyan)}
+.move .m-unclass.on{color:var(--gold)}
+.empty{color:var(--sub);text-align:center;padding:50px 0;font-size:.9rem}
+.zip-panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px}
+.zip-panel h2{margin:0 0 12px;font-size:.95rem;font-weight:600;font-family:'JetBrains Mono',monospace;color:var(--cyan)}
+.zip-options{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.zip-opt{display:flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;user-select:none;font-size:.85rem}
+.zip-opt input[type=checkbox]{accent-color:var(--cyan);width:15px;height:15px;cursor:pointer}
+.zip-opt.sel{border-color:var(--cyan);color:var(--text)}
+.zip-opt:not(.sel){color:var(--sub)}
+.zip-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.zip-btn{background:var(--cyan-dim);border:1px solid var(--cyan);color:var(--cyan);padding:9px 18px;border-radius:8px;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px}
+.zip-btn:disabled{opacity:.45;cursor:not-allowed}
+.zip-btn:not(:disabled):hover{background:#23504e}
+.zip-info{font-size:.78rem;color:var(--sub)}
+.zip-spinner{width:13px;height:13px;border:2px solid var(--cyan-dim);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite;display:none}
+.zip-btn.working .zip-spinner{display:block}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0">
+    <h1>Organizador de Mods</h1>
+    <p>Análisis local de metadatos + verificación por hash en Modrinth/CurseForge cuando hace falta.</p>
+  </div>
+</header>
+<div class="wrap">
+  <div class="banner">
+    ℹ️ Primero se lee <b>fabric.mod.json / mods.toml / mcmod.info</b> dentro de cada .jar. Si no queda claro, se calcula el hash del archivo y se intenta identificar automáticamente en <b>Modrinth</b> (sin clave) y, si diste tu clave, en <b>CurseForge</b>. Cada mod que quede "Por clasificar" incluye además un buscador que consulta Modrinth <b>solo por el nombre clave del mod</b> (sin número de versión, versión de Minecraft ni loader) para evitar resultados ruidosos; puedes revisar los resultados y confirmar el correcto con un clic. Si las peticiones automáticas quedan bloqueadas por el visor donde abriste esta página, cada tarjeta deja enlaces para verificar manualmente en una pestaña nueva. Nada se clasifica por adivinanza.
+  </div>
+
+  <div class="drop" id="drop">
+    <strong>Arrastra aquí tus archivos .jar o un .zip</strong>
+    <small>También puedes hacer clic para elegir archivos · varios .jar a la vez o un .zip con una carpeta mods/</small>
+    <input type="file" id="fileInput" multiple accept=".jar,.zip">
+  </div>
+
+  <div class="settings">
+    <label for="cfKey">Clave de CurseForge API (opcional, para el fallback de CurseForge):</label>
+    <input type="password" id="cfKey" placeholder="Pégala aquí — se guarda solo en este navegador">
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div class="tabs" id="tabs"></div>
+
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="Buscar por nombre de mod…">
+    <div class="actions">
+      <button id="expJson">Exportar JSON</button>
+      <button id="expTxt">Exportar resumen (.txt)</button>
+    </div>
+  </div>
+
+  <div class="zip-panel" id="zipPanel" style="display:none">
+    <h2>📦 Exportar selección como .zip</h2>
+    <div class="zip-options">
+      <label class="zip-opt" id="zopt-client"><input type="checkbox" value="client"> <span style="color:var(--violet)">■</span> Solo Cliente</label>
+      <label class="zip-opt" id="zopt-server"><input type="checkbox" value="server"> <span style="color:#c9a8ff">■</span> Solo Servidor</label>
+      <label class="zip-opt" id="zopt-both"><input type="checkbox" value="both"> <span style="color:var(--cyan)">■</span> Ambos</label>
+      <label class="zip-opt" id="zopt-unclass"><input type="checkbox" value="unclass"> <span style="color:var(--gold)">■</span> Por clasificar</label>
+    </div>
+    <div class="zip-actions">
+      <button class="zip-btn" id="zipBtn" disabled>
+        <span class="zip-spinner"></span>
+        <span class="zip-label">Generar .zip</span>
+      </button>
+      <span class="zip-info" id="zipInfo">Selecciona al menos una categoría para continuar.</span>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">Todavía no hay mods cargados. Suelta tus archivos arriba para empezar.</div>
+</div>
+
+<script>
+let mods = [];
+let modBytes = new Map(); // id -> ArrayBuffer, conservado en sesión para poder empaquetar .zips
+let activeTab = 'all';
+let dl = null;
+if (window.claude && claude.use) claude.use('downloads').then(d => dl = d);
+
+const cfKeyInput = document.getElementById('cfKey');
+cfKeyInput.value = localStorage.getItem('cfApiKey') || '';
+cfKeyInput.addEventListener('input', () => { try { localStorage.setItem('cfApiKey', cfKeyInput.value); } catch(e){} });
+
+const TABS = [
+  {id:'all', label:'Todos'}, {id:'client', label:'Solo Cliente'}, {id:'server', label:'Solo Servidor'},
+  {id:'both', label:'Ambos'}, {id:'unclass', label:'Por clasificar / Revisar'},
+];
+
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ---------- hashing ----------
+async function sha1Hex(buffer){
+  const hash = await crypto.subtle.digest('SHA-1', buffer);
+  return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function murmur2_32(data, seed){
+  const m = 0x5bd1e995, r = 24;
+  let len = data.length, h = (seed ^ len) >>> 0, i = 0;
+  while(len >= 4){
+    let k = (data[i]&0xff) | ((data[i+1]&0xff)<<8) | ((data[i+2]&0xff)<<16) | ((data[i+3]&0xff)<<24);
+    k = Math.imul(k, m) >>> 0; k ^= k >>> r; k = Math.imul(k, m) >>> 0;
+    h = Math.imul(h, m) >>> 0; h ^= k;
+    i += 4; len -= 4;
+  }
+  if(len === 3){ h ^= (data[i+2]&0xff) << 16; h ^= (data[i+1]&0xff) << 8; h ^= (data[i]&0xff); h = Math.imul(h, m) >>> 0; }
+  else if(len === 2){ h ^= (data[i+1]&0xff) << 8; h ^= (data[i]&0xff); h = Math.imul(h, m) >>> 0; }
+  else if(len === 1){ h ^= (data[i]&0xff); h = Math.imul(h, m) >>> 0; }
+  h ^= h >>> 13; h = Math.imul(h, m) >>> 0; h ^= h >>> 15;
+  return h >>> 0;
+}
+function curseForgeFingerprint(buffer){
+  const src = new Uint8Array(buffer);
+  const out = [];
+  for(const b of src){ if(b !== 9 && b !== 10 && b !== 13 && b !== 32) out.push(b); }
+  return murmur2_32(new Uint8Array(out), 1);
+}
+
+// ---------- local metadata parsing ----------
+function findFileCI(zip, name){
+  const lower = name.toLowerCase();
+  return Object.keys(zip.files).find(p => p.toLowerCase() === lower || p.toLowerCase().endsWith('/'+lower));
+}
+async function readText(zip, path){
+  const f = zip.file(path); if(!f) return null;
+  try { return await f.async('string'); } catch(e){ return null; }
+}
+function cleanKeyFromFilename(filename){
+  let s = filename.replace(/\.jar$/i, '');
+  s = s.replace(/[\[(].*?[\])]/g, ' ');
+  s = s.replace(/[_.]/g, ' ');
+  const loaderWords = ['fabric','forge','neoforge','quilt','api'];
+  const stageWords = ['universal','release','common','final'];
+  let tokens = s.split(/[\s-]+/).filter(Boolean);
+  tokens = tokens.filter(tok => {
+    const lower = tok.toLowerCase();
+    if(loaderWords.includes(lower) || stageWords.includes(lower)) return false;
+    if(/^\d+$/.test(tok)) return false;                          // número suelto: 20, 105, 2...
+    if(/^v?\d+(\.\d+){0,3}[a-z0-9]*$/i.test(tok)) return false;   // 1.20.1, v2, 2.0.4, 20w14a-like
+    if(/^mc ?\d.*$/i.test(lower)) return false;                  // mc1.20
+    if(/^(alpha|beta|snapshot|dev|indev|pre|rc)\d*$/i.test(tok)) return false; // etapas de build
+    if(/^[a-f0-9]{6,}$/i.test(tok) && /\d/.test(tok)) return false; // hash de build
+    return true;
+  });
+  const result = tokens.join(' ').replace(/\s+/g, ' ').trim();
+  return result || filename.replace(/\.jar$/i, '');
+}
+function finalizeMod(filename, name, version, loader, env, reason, source){
+  return { id: uid(), filename, name, version, loader, environment: env, manual:false, reason: reason||null, source: source||'local', status:'done', searchKey: cleanKeyFromFilename(filename), searchResults: null, searching: false };
+}
+async function parseLocal(zip, filename){
+  const fabricPath = findFileCI(zip, 'fabric.mod.json');
+  if(fabricPath){
+    const txt = await readText(zip, fabricPath);
+    try{
+      const j = JSON.parse(txt);
+      let env = 'unclass';
+      if(j.environment === '*') env = 'both'; else if(j.environment === 'client') env = 'client'; else if(j.environment === 'server') env = 'server';
+      return finalizeMod(filename, j.name || j.id || filename, j.version || '?', 'Fabric/Quilt', env, env==='unclass' ? 'fabric.mod.json no declara "environment"' : null);
+    }catch(e){}
+  }
+  const quiltPath = findFileCI(zip, 'quilt.mod.json');
+  if(quiltPath){
+    const txt = await readText(zip, quiltPath);
+    try{
+      const j = JSON.parse(txt); const ql = j.quilt_loader || {};
+      const name = (ql.metadata && ql.metadata.name) || ql.id || filename;
+      const envRaw = ql.minecraft && ql.minecraft.environment;
+      let env = 'unclass';
+      if(envRaw === '*') env = 'both'; else if(envRaw === 'client') env = 'client'; else if(envRaw === 'dedicated_server') env = 'server';
+      return finalizeMod(filename, name, ql.version || '?', 'Quilt', env, env==='unclass' ? 'quilt.mod.json no declara environment' : null);
+    }catch(e){}
+  }
+  const tomlPath = findFileCI(zip, 'META-INF/mods.toml') || findFileCI(zip, 'mods.toml');
+  if(tomlPath){
+    const txt = await readText(zip, tomlPath);
+    if(txt){
+      const modId = (txt.match(/modId\s*=\s*"([^"]+)"/) || [])[1];
+      const version = (txt.match(/version\s*=\s*"([^"]+)"/) || [])[1] || '?';
+      const displayName = (txt.match(/displayName\s*=\s*"([^"]+)"/) || [])[1];
+      const sideMatch = txt.match(/\bside\s*=\s*"?(CLIENT|SERVER|BOTH)"?/i);
+      let env = 'unclass';
+      if(sideMatch){ const v = sideMatch[1].toUpperCase(); env = v==='CLIENT'?'client':v==='SERVER'?'server':'both'; }
+      return finalizeMod(filename, displayName || modId || filename, version, 'Forge/NeoForge', env, env==='unclass' ? 'mods.toml no declara un lado (side) explícito' : null);
+    }
+  }
+  const infoPath = findFileCI(zip, 'mcmod.info');
+  if(infoPath){
+    const txt = await readText(zip, infoPath);
+    try{
+      let arr = JSON.parse(txt); if(arr && arr.modList) arr = arr.modList;
+      const j = Array.isArray(arr) ? arr[0] : arr;
+      if(j){
+        let env = 'unclass'; if(j.clientSideOnly === true) env = 'client';
+        return finalizeMod(filename, j.name || j.modid || filename, j.version || '?', 'Forge (legacy)', env, env==='unclass' ? 'mcmod.info no declara el lado' : null);
+      }
+    }catch(e){}
+  }
+  return finalizeMod(filename, filename.replace(/\.jar$/i,''), '?', 'Desconocido', 'unclass', 'No se encontraron metadatos reconocibles en el .jar');
+}
+
+// ---------- remote fallback ----------
+function mapModrinthEnv(client, server){
+  const need = v => v === 'required' || v === 'optional';
+  const c = need(client), s = need(server);
+  if(c && s) return 'both'; if(c && !s) return 'client'; if(!c && s) return 'server'; return 'unclass';
+}
+async function lookupModrinth(sha1){
+  const res = await fetch(`https://api.modrinth.com/v2/version_file/${sha1}?algorithm=sha1`);
+  if(!res.ok) return null;
+  const version = await res.json();
+  const projRes = await fetch(`https://api.modrinth.com/v2/project/${version.project_id}`);
+  if(!projRes.ok) return null;
+  const proj = await projRes.json();
+  const env = mapModrinthEnv(proj.client_side, proj.server_side);
+  return { name: proj.title, version: version.version_number || '?', env };
+}
+async function searchModrinthByKey(mod, key){
+  mod.searching = true; mod.searchResults = null; mod.searchError = false; render();
+  try{
+    const res = await fetch(`https://api.modrinth.com/v2/search?query=${encodeURIComponent(key)}&limit=5&facets=${encodeURIComponent(JSON.stringify([["project_type:mod"]]))}`);
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    mod.searchResults = (data.hits || []).map(h => ({ title: h.title, description: h.description, project_id: h.project_id, client_side: h.client_side, server_side: h.server_side }));
+  }catch(e){
+    mod.searchResults = []; mod.searchError = true;
+  } finally {
+    mod.searching = false; render();
+  }
+}
+function useModrinthResult(mod, hit){
+  const env = mapModrinthEnv(hit.client_side, hit.server_side);
+  mod.name = hit.title;
+  mod.source = 'modrinth';
+  let note = 'Confirmado por nombre en Modrinth (no por hash) — revisa que sea la versión correcta.';
+  if(env !== 'unclass'){ mod.environment = env; mod.reason = note; }
+  else { mod.reason = 'Nombre confirmado en Modrinth, pero el proyecto no declara un lado inequívoco. ' + note; }
+  mod.searchResults = null;
+  render();
+}
+async function lookupCurseForge(fingerprint, apiKey){
+  const res = await fetch('https://api.curseforge.com/v1/fingerprints', {
+    method:'POST', headers:{'Content-Type':'application/json','x-api-key':apiKey},
+    body: JSON.stringify({fingerprints:[fingerprint]})
+  });
+  if(!res.ok) return null;
+  const data = await res.json();
+  const match = data && data.data && data.data.exactMatches && data.data.exactMatches[0];
+  if(!match) return null;
+  return { name: match.file.displayName || match.file.fileName || null };
+}
+async function tryRemoteIdentify(mod, arrayBuffer){
+  mod.status = 'checking'; render();
+  try{
+    const sha1 = await sha1Hex(arrayBuffer);
+    mod.modrinthHashUrl = `https://api.modrinth.com/v2/version_file/${sha1}?algorithm=sha1`;
+    try{
+      const m = await lookupModrinth(sha1);
+      if(m && m.env !== 'unclass'){
+        mod.name = m.name; mod.version = m.version; mod.environment = m.env; mod.source = 'modrinth'; mod.reason = null;
+        mod.status = 'done'; render(); return;
+      }
+      if(m){ mod.name = m.name; mod.reason = 'Identificado en Modrinth, pero el proyecto no declara un lado inequívoco'; }
+    }catch(e){ /* fetch bloqueado o sin red — seguimos al fallback manual/CurseForge */ }
+
+    const apiKey = localStorage.getItem('cfApiKey');
+    const fp = curseForgeFingerprint(arrayBuffer);
+    mod.curseforgeSearchUrl = `https://www.curseforge.com/minecraft/search?search=${encodeURIComponent(mod.searchKey)}`;
+    mod.modrinthSearchUrl = `https://modrinth.com/mods?q=${encodeURIComponent(mod.searchKey)}`;
+    if(apiKey){
+      try{
+        const cf = await lookupCurseForge(fp, apiKey);
+        if(cf && cf.name){ mod.name = cf.name; mod.source = mod.source==='modrinth'?'modrinth':'curseforge'; mod.reason = (mod.reason ? mod.reason+'. ' : '') + 'CurseForge confirmó el nombre pero no expone de forma fiable el lado cliente/servidor'; }
+      }catch(e){ /* bloqueado — se queda el enlace manual */ }
+    }
+    if(mod.environment === 'unclass' && !mod.reason) mod.reason = 'No se pudo identificar con seguridad ni local ni por hash';
+  } finally {
+    mod.status = 'done'; render();
+  }
+}
+
+// ---------- ingest ----------
+async function handleFiles(fileList){
+  for(const file of fileList){
+    if(/\.jar$/i.test(file.name)){
+      const buf = await file.arrayBuffer();
+      let zip; try{ zip = await JSZip.loadAsync(buf); }catch(e){ const m=finalizeMod(file.name, file.name.replace(/\.jar$/i,''), '?', 'Desconocido', 'unclass', 'Archivo .jar corrupto o ilegible'); mods.push(m); modBytes.set(m.id, buf); render(); continue; }
+      const mod = await parseLocal(zip, file.name);
+      modBytes.set(mod.id, buf);
+      mods.push(mod); render();
+      if(mod.environment === 'unclass') await tryRemoteIdentify(mod, buf);
+    } else if(/\.zip$/i.test(file.name)){
+      const buf = await file.arrayBuffer();
+      let zip; try{ zip = await JSZip.loadAsync(buf); } catch(e){ continue; }
+      const jarEntries = Object.keys(zip.files).filter(p => /\.jar$/i.test(p) && !zip.files[p].dir);
+      for(const entry of jarEntries){
+        const nestedBuf = await zip.files[entry].async('arraybuffer');
+        const shortName = entry.split('/').pop();
+        let nested; try{ nested = await JSZip.loadAsync(nestedBuf); }catch(e){ const m=finalizeMod(shortName, shortName.replace(/\.jar$/i,''), '?', 'Desconocido', 'unclass', 'Archivo .jar corrupto o ilegible'); mods.push(m); modBytes.set(m.id, nestedBuf); render(); continue; }
+        const mod = await parseLocal(nested, shortName);
+        modBytes.set(mod.id, nestedBuf);
+        mods.push(mod); render();
+        if(mod.environment === 'unclass') await tryRemoteIdentify(mod, nestedBuf);
+      }
+    }
+  }
+}
+
+// ---------- rendering ----------
+function countFor(id){ return id==='all' ? mods.length : mods.filter(m=>m.environment===id).length; }
+function renderTabs(){
+  document.getElementById('tabs').innerHTML = TABS.map(t => `
+    <button class="tab ${activeTab===t.id?'active':''}" data-tab="${t.id}">${t.label}<span class="n">${countFor(t.id)}</span></button>`).join('');
+  document.querySelectorAll('.tab').forEach(b => b.onclick = () => { activeTab = b.dataset.tab; render(); });
+}
+function renderStats(){
+  const c = { client: countFor('client'), server: countFor('server'), both: countFor('both'), unclass: countFor('unclass') };
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><b>${mods.length}</b><span>Total</span></div>
+    <div class="stat"><b style="color:var(--violet)">${c.client}</b><span>Cliente</span></div>
+    <div class="stat"><b style="color:#c9a8ff">${c.server}</b><span>Servidor</span></div>
+    <div class="stat"><b style="color:var(--cyan)">${c.both}</b><span>Ambos</span></div>
+    <div class="stat"><b style="color:var(--gold)">${c.unclass}</b><span>Por clasificar</span></div>`;
+}
+const badgeLabel = {client:'Cliente', server:'Servidor', both:'Ambos', unclass:'Por clasificar'};
+const badgeClass = {client:'b-client', server:'b-server', both:'b-both', unclass:'b-unclass'};
+const sourceLabel = {local:'Local', modrinth:'Modrinth', curseforge:'CurseForge'};
+
+function renderGrid(){
+  const grid = document.getElementById('grid'), empty = document.getElementById('empty');
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  let list = mods.filter(m => activeTab==='all' || m.environment===activeTab);
+  if(q) list = list.filter(m => m.name.toLowerCase().includes(q) || m.filename.toLowerCase().includes(q));
+  if(mods.length===0){ empty.style.display='block'; empty.textContent='Todavía no hay mods cargados. Suelta tus archivos arriba para empezar.'; grid.innerHTML=''; return; }
+  if(list.length===0){ empty.style.display='block'; empty.textContent='Ningún mod coincide con este filtro.'; grid.innerHTML=''; return; }
+  empty.style.display='none';
+
+  grid.innerHTML = list.map(m => `
+    <div class="card ${m.environment==='unclass'?'unclass':''} ${m.status==='checking'?'checking':''}">
+      <div class="card-top">
+        <div>
+          <div class="card-name">${escapeHtml(m.name)}</div>
+          <div class="card-file">${escapeHtml(m.filename)}</div>
+        </div>
+        <span class="badge ${badgeClass[m.environment]}">${badgeLabel[m.environment]}</span>
+      </div>
+      <div class="meta">
+        <span>Loader: <b>${escapeHtml(m.loader)}</b></span>
+        <span>Versión: <b>${escapeHtml(m.version)}</b></span>
+      </div>
+      <div class="src"><span class="dot ${m.source}"></span>Fuente: ${sourceLabel[m.source] || 'Local'}</div>
+      ${m.status==='checking' ? `<div class="checking-row"><span class="spinner"></span> Consultando Modrinth / CurseForge…</div>` : ''}
+      ${m.reason ? `<div class="warn">⚠ ${escapeHtml(m.reason)}</div>` : ''}
+      ${(m.status==='done' && m.environment==='unclass' && (m.modrinthHashUrl || m.curseforgeSearchUrl)) ? `
+        <div class="manual-links">
+          ${m.modrinthHashUrl ? `<a href="${m.modrinthHashUrl}" target="_blank" rel="noopener">Ver en Modrinth (hash) ↗</a>` : ''}
+          ${m.modrinthSearchUrl ? `<a href="${m.modrinthSearchUrl}" target="_blank" rel="noopener">Abrir Modrinth ↗</a>` : ''}
+          ${m.curseforgeSearchUrl ? `<a href="${m.curseforgeSearchUrl}" target="_blank" rel="noopener">Buscar en CurseForge ↗</a>` : ''}
+        </div>` : ''}
+      ${(m.status==='done' && m.environment==='unclass') ? `
+        <div class="mr-search">
+          <div class="mr-search-row">
+            <input type="text" class="mr-input" data-id="${m.id}" value="${escapeHtml(m.searchKey)}" placeholder="Nombre clave del mod">
+            <button class="mr-go" data-id="${m.id}" ${m.searching?'disabled':''}>${m.searching ? 'Buscando…' : 'Buscar en Modrinth'}</button>
+          </div>
+          <div class="mr-hint">Busca solo por el nombre clave del mod (sin versión ni loader) para resultados más precisos.</div>
+          ${m.searchResults ? `
+            <div class="mr-results">
+              ${m.searchResults.length === 0
+                ? `<div class="mr-empty">${m.searchError ? 'No se pudo consultar Modrinth desde aquí. Usa el enlace "Abrir Modrinth ↗" de arriba.' : 'Sin resultados para ese nombre.'}</div>`
+                : m.searchResults.map((h,i) => `
+                  <div class="mr-result">
+                    <div>
+                      <div class="mr-result-name">${escapeHtml(h.title)}</div>
+                      <div class="mr-result-desc">${escapeHtml(h.description || '')}</div>
+                    </div>
+                    <button class="mr-use" data-id="${m.id}" data-idx="${i}">Usar</button>
+                  </div>`).join('')}
+            </div>` : ''}
+        </div>` : ''}
+      <div class="move">
+        <button class="m-client ${m.environment==='client'?'on':''}" data-id="${m.id}" data-env="client">Cliente</button>
+        <button class="m-server ${m.environment==='server'?'on':''}" data-id="${m.id}" data-env="server">Servidor</button>
+        <button class="m-both ${m.environment==='both'?'on':''}" data-id="${m.id}" data-env="both">Ambos</button>
+        <button class="m-unclass ${m.environment==='unclass'?'on':''}" data-id="${m.id}" data-env="unclass">Revisar</button>
+      </div>
+    </div>`).join('');
+
+  grid.querySelectorAll('.move button').forEach(b => b.onclick = () => {
+    const mod = mods.find(m => m.id === b.dataset.id);
+    if(mod){ mod.environment = b.dataset.env; mod.manual = true; render(); }
+  });
+  grid.querySelectorAll('.mr-go').forEach(b => b.onclick = () => {
+    const mod = mods.find(m => m.id === b.dataset.id);
+    const input = grid.querySelector(`.mr-input[data-id="${b.dataset.id}"]`);
+    if(mod && input) searchModrinthByKey(mod, input.value.trim());
+  });
+  grid.querySelectorAll('.mr-input').forEach(inp => inp.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){
+      const mod = mods.find(m => m.id === inp.dataset.id);
+      if(mod) searchModrinthByKey(mod, inp.value.trim());
+    }
+  }));
+  grid.querySelectorAll('.mr-use').forEach(b => b.onclick = () => {
+    const mod = mods.find(m => m.id === b.dataset.id);
+    if(mod && mod.searchResults) useModrinthResult(mod, mod.searchResults[Number(b.dataset.idx)]);
+  });
+}
+function render(){ renderStats(); renderTabs(); renderGrid(); }
+document.getElementById('search').addEventListener('input', renderGrid);
+
+const dropZone = document.getElementById('drop'), fileInput = document.getElementById('fileInput');
+dropZone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => handleFiles(e.target.files));
+['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.add('drag'); }));
+['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.remove('drag'); }));
+dropZone.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
+
+async function doExport(kind){
+  if(mods.length===0){ alert('No hay mods para exportar.'); return; }
+  let filename, content, mime;
+  if(kind==='json'){
+    filename = 'mods-clasificados.json'; mime = 'application/json';
+    content = JSON.stringify(mods.map(({id, manual, status, modrinthHashUrl, curseforgeSearchUrl, ...rest}) => rest), null, 2);
+  } else {
+    filename = 'mods-resumen.txt'; mime = 'text/plain';
+    const section = (label, env) => {
+      const items = mods.filter(m=>m.environment===env);
+      if(items.length===0) return `${label}: (ninguno)\n`;
+      return `${label} (${items.length}):\n` + items.map(m=>`  - ${m.name} [${m.version}] (${m.filename}) — fuente: ${sourceLabel[m.source]||'Local'}`).join('\n') + '\n';
+    };
+    content = ['CLIENTE','SERVIDOR','AMBOS','POR CLASIFICAR'].map((l,i)=>section(l, ['client','server','both','unclass'][i])).join('\n');
+  }
+  if(dl){ try{ await dl.save({ filename, data: new Blob([content], {type: mime}) }); return; }catch(e){} }
+  const blob = new Blob([content], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+}
+document.getElementById('expJson').onclick = () => doExport('json');
+document.getElementById('expTxt').onclick = () => doExport('txt');
+
+// ---------- zip export panel ----------
+const zipPanel = document.getElementById('zipPanel');
+const zipBtn   = document.getElementById('zipBtn');
+const zipInfo  = document.getElementById('zipInfo');
+const zipChecks = Array.from(document.querySelectorAll('.zip-options input[type=checkbox]'));
+
+function updateZipPanel(){
+  if(mods.length === 0){ zipPanel.style.display = 'none'; return; }
+  zipPanel.style.display = 'block';
+  const selected = zipChecks.filter(c => c.checked).map(c => c.value);
+  zipChecks.forEach(c => {
+    const lbl = document.getElementById('zopt-' + c.value);
+    lbl.classList.toggle('sel', c.checked);
+  });
+  const count = mods.filter(m => selected.includes(m.environment)).length;
+  const noBytes = mods.filter(m => selected.includes(m.environment) && !modBytes.has(m.id)).length;
+  if(selected.length === 0){
+    zipBtn.disabled = true;
+    zipInfo.textContent = 'Selecciona al menos una categoría para continuar.';
+  } else if(count === 0){
+    zipBtn.disabled = true;
+    zipInfo.textContent = 'No hay mods en las categorías seleccionadas.';
+  } else {
+    zipBtn.disabled = false;
+    zipInfo.textContent = `${count} mod${count!==1?'s':''} se incluirán en el .zip${noBytes ? ` (${noBytes} sin datos en memoria, no se añadirán)` : ''}.`;
+  }
+}
+zipChecks.forEach(c => c.addEventListener('change', updateZipPanel));
+
+async function exportZip(){
+  const selected = zipChecks.filter(c => c.checked).map(c => c.value);
+  const targets = mods.filter(m => selected.includes(m.environment) && modBytes.has(m.id));
+  if(targets.length === 0){ alert('No hay mods con datos disponibles para las categorías seleccionadas.'); return; }
+
+  zipBtn.disabled = true;
+  zipBtn.classList.add('working');
+  zipBtn.querySelector('.zip-label').textContent = 'Generando…';
+  zipInfo.textContent = `Empaquetando ${targets.length} mods…`;
+
+  try{
+    const z = new JSZip();
+    const folder = z.folder('mods');
+    for(const m of targets) folder.file(m.filename, modBytes.get(m.id));
+    const blob = await z.generateAsync({ type:'blob', compression:'STORE' });
+    const names = selected.map(s => ({client:'cliente',server:'servidor',both:'ambos',unclass:'revisar'}[s])).join('-');
+    const filename = `mods-${names}.zip`;
+    if(dl){ try{ await dl.save({ filename, data: blob }); return; }catch(e){} }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    zipInfo.textContent = `✓ ${targets.length} mod${targets.length!==1?'s':''} exportados correctamente.`;
+  } catch(e){
+    zipInfo.textContent = '⚠ Error al generar el .zip. Intenta de nuevo.';
+  } finally {
+    zipBtn.disabled = false;
+    zipBtn.classList.remove('working');
+    zipBtn.querySelector('.zip-label').textContent = 'Generar .zip';
+    updateZipPanel();
+  }
+}
+zipBtn.addEventListener('click', exportZip);
+
+// actualizar panel cada vez que cambian los mods
+const _origRender = render;
+render = function(){ _origRender(); updateZipPanel(); };
+
+render();
+</script>
+</body>
+</html>
