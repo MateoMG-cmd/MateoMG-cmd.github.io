@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Organizador de Mods · Minecraft</title>
+<title>Weddell Tools · Minecraft</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -23,15 +23,18 @@
 body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100%}
 h1,.mono{font-family:'JetBrains Mono',monospace}
 header{padding:28px 24px 18px;border-bottom:1px solid var(--line)}
-h1{margin:0 0 4px;font-size:1.4rem;font-weight:700;letter-spacing:.2px}
+h1{margin:0 0 4px;font-size:1.4rem;font-weight:700;letter-spacing:.2px;display:flex;align-items:center;gap:10px}
+h1 .logo{width:22px;height:22px;border-radius:5px;background:linear-gradient(135deg,var(--cyan),var(--violet));flex:none}
 header p{margin:0;color:var(--sub);font-size:.92rem}
 .wrap{max-width:1120px;margin:0 auto;padding:0 20px 60px}
 .banner{margin-top:18px;background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--cyan);border-radius:8px;padding:10px 14px;font-size:.8rem;color:var(--sub);line-height:1.5}
 .drop{margin-top:18px;border:2px dashed var(--line);border-radius:var(--radius);padding:34px 20px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
 .drop.drag{border-color:var(--cyan);background:var(--cyan-dim)}
+.drop.loaded{border-style:solid;border-color:var(--cyan)}
 .drop strong{color:var(--cyan)}
 .drop small{display:block;margin-top:6px;color:var(--sub)}
-#fileInput{display:none}
+.drop .filename{margin-top:10px;color:var(--text);font-size:.8rem;font-family:'JetBrains Mono',monospace}
+#fileInput,#mcFileInput{display:none}
 .settings{display:flex;gap:10px;align-items:center;margin:14px 0;flex-wrap:wrap;font-size:.8rem;color:var(--sub)}
 .settings input{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:7px 10px;border-radius:8px;font-size:.8rem;min-width:260px}
 .stats{display:flex;gap:14px;margin:20px 0;flex-wrap:wrap;overflow-x:auto}
@@ -105,64 +108,443 @@ header p{margin:0;color:var(--sub);font-size:.92rem}
 .zip-info{font-size:.78rem;color:var(--sub)}
 .zip-spinner{width:13px;height:13px;border:2px solid var(--cyan-dim);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite;display:none}
 .zip-btn.working .zip-spinner{display:block}
+
+/* ---------- Weddell Tools additions: top-level nav + converter tab ---------- */
+.toptabs{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0 26px}
+.toptab{background:var(--panel);border:1px solid var(--line);color:var(--sub);padding:11px 20px;border-radius:999px;cursor:pointer;font-size:.88rem;font-weight:600;font-family:inherit;transition:border-color .15s,color .15s,background .15s}
+.toptab .ic{margin-right:7px}
+.toptab:hover{color:var(--text);border-color:#3a3d52}
+.toptab.active{background:var(--panel2);color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan-dim)}
+.page{display:none}
+.page.active{display:block}
+
+.opt-grid{display:flex;flex-direction:column;gap:10px}
+.opt-pill{display:flex;align-items:flex-start;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 14px;cursor:pointer}
+.opt-pill input{margin-top:2px;accent-color:var(--cyan);width:15px;height:15px;cursor:pointer;flex:none}
+.opt-pill .lbl{font-size:.85rem;color:var(--text)}
+.opt-pill .lbl small{display:block;color:var(--sub);font-size:.72rem;margin-top:2px;font-weight:400}
+.opt-row{display:flex;gap:22px;flex-wrap:wrap;font-size:.82rem;color:var(--sub);margin:4px 0 2px}
+.opt-row label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.opt-row input{accent-color:var(--cyan)}
+.mc-field{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.mc-field span{font-size:.76rem;color:var(--sub)}
+.mc-field select, .mc-field textarea{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px 10px;border-radius:8px;font-family:inherit;font-size:.82rem}
+.mc-field textarea{font-family:'JetBrains Mono',monospace;font-size:.74rem;min-height:70px;resize:vertical;line-height:1.5}
+.mc-field select:focus, .mc-field textarea:focus{outline:none;border-color:var(--cyan)}
+.mc-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.mc-cols{grid-template-columns:1fr}}
+.mc-runbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:18px 0 10px}
+.btn-main{background:linear-gradient(135deg,var(--cyan-dim),#173330);border:1px solid var(--cyan);color:var(--cyan);padding:13px 26px;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:box-shadow .15s,background .15s}
+.btn-main:hover:not(:disabled){box-shadow:0 0 0 1px var(--cyan);background:#1e4440}
+.btn-main:disabled{opacity:.4;cursor:not-allowed}
+.btn-download{background:var(--gold-dim);border:1px solid var(--gold);color:var(--gold);padding:11px 20px;border-radius:10px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;display:none;align-items:center;gap:8px}
+.btn-download.show{display:inline-flex}
+.btn-download:hover{background:#4a3c26}
+.mc-status{font-size:.8rem;color:var(--sub)}
+.mc-progress{height:4px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:0 0 16px}
+.mc-progress .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .25s}
+.console-wrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:6px}
+.console-head{background:var(--panel2);padding:8px 14px;font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between;border-bottom:1px solid var(--line)}
+.console{background:#07080c;color:#c9f7d6;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.6;padding:12px 14px;height:260px;overflow-y:auto}
+.console .l-ok{color:#6be89a}
+.console .l-warn{color:var(--gold)}
+.console .l-err{color:var(--danger)}
+.console .l-dim{color:#4f8a63}
+.console .l-white{color:#e8e9f2}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap" style="padding:0">
-    <h1>Organizador de Mods</h1>
-    <p>Análisis local de metadatos + verificación por hash en Modrinth/CurseForge cuando hace falta.</p>
+    <h1><span class="logo"></span>Weddell Tools</h1>
+    <p>Panel de herramientas para modpacks de Minecraft — conversión cliente→servidor y organización de mods.</p>
   </div>
 </header>
 <div class="wrap">
-  <div class="banner">
-    ℹ️ Primero se lee <b>fabric.mod.json / mods.toml / mcmod.info</b> dentro de cada .jar. Si no queda claro, se calcula el hash del archivo y se intenta identificar automáticamente en <b>Modrinth</b> (sin clave) y, si diste tu clave, en <b>CurseForge</b>. Cada mod que quede "Por clasificar" incluye además un buscador que consulta Modrinth <b>solo por el nombre clave del mod</b> (sin número de versión, versión de Minecraft ni loader) para evitar resultados ruidosos; puedes revisar los resultados y confirmar el correcto con un clic. Si las peticiones automáticas quedan bloqueadas por el visor donde abriste esta página, cada tarjeta deja enlaces para verificar manualmente en una pestaña nueva. Nada se clasifica por adivinanza.
+
+  <div class="toptabs" id="toptabs">
+    <button class="toptab active" data-page="converter"><span class="ic">🛠️</span>Convertidor de Modpack (Cliente a Servidor)</button>
+    <button class="toptab" data-page="organizer"><span class="ic">🧩</span>Organizador de Mods</button>
   </div>
 
-  <div class="drop" id="drop">
-    <strong>Arrastra aquí tus archivos .jar o un .zip</strong>
-    <small>También puedes hacer clic para elegir archivos · varios .jar a la vez o un .zip con una carpeta mods/</small>
-    <input type="file" id="fileInput" multiple accept=".jar,.zip">
-  </div>
+  <!-- ======================= PÁGINA 1: CONVERTIDOR ======================= -->
+  <div class="page active" id="page-converter">
+    <div class="banner">
+      ℹ️ Sube el <b>.zip</b> de un modpack de cliente (CurseForge o Modrinth). Si el pack es Modrinth (<b>modrinth.index.json</b>), el filtrado usa el campo oficial <b>env.client/server</b> de cada mod; si es CurseForge o una carpeta suelta, se aplica la lista de palabras clave configurable de abajo.
+    </div>
 
-  <div class="settings">
-    <label for="cfKey">Clave de CurseForge API (opcional, para el fallback de CurseForge):</label>
-    <input type="password" id="cfKey" placeholder="Pégala aquí — se guarda solo en este navegador">
-  </div>
+    <div class="drop" id="mcDrop">
+      <strong>Arrastra aquí el .zip del modpack de cliente</strong>
+      <small>Formatos soportados: Modrinth (.mrpack/.zip) y CurseForge (manifest.json) · o haz clic para elegir archivo</small>
+      <div class="filename" id="mcFileName"></div>
+      <input type="file" id="mcFileInput" accept=".zip,.mrpack">
+    </div>
 
-  <div class="stats" id="stats"></div>
-  <div class="tabs" id="tabs"></div>
+    <div class="mc-cols" style="margin-top:18px">
+      <div class="zip-panel">
+        <h2>⚙ Filtrado de mods</h2>
+        <div class="opt-grid">
+          <label class="opt-pill"><input type="checkbox" id="optRemoveClient" checked>
+            <span class="lbl">Eliminar mods exclusivos de cliente<small>Minimapas, shaders y optimizadores visuales (Sodium, Iris, JourneyMap, etc.)</small></span>
+          </label>
+          <label class="opt-pill"><input type="checkbox" id="optUseEnv" checked>
+            <span class="lbl">Usar metadatos "env" de Modrinth<small>Respeta el campo client/server oficial de cada mod cuando está disponible</small></span>
+          </label>
+        </div>
+        <div class="opt-row" style="margin-top:12px">
+          <label><input type="radio" name="mclistmode" value="blacklist" checked> Lista negra</label>
+          <label><input type="radio" name="mclistmode" value="whitelist"> Lista blanca</label>
+        </div>
+        <div class="mc-field">
+          <span>Palabras clave (una por línea)</span>
+          <textarea id="mcKeywordList">sodium
+iris
+oculus
+embeddium
+rubidium
+journeymap
+xaero
+voxelmap
+optifine
+shader
+continuity
+cit-resewn
+mousetweaks
+controlling
+3d-skin-layers
+eating-animation
+dynamic-fps
+betterf3
+notenoughanimations
+presence-footsteps
+ambientsounds
+chat-heads
+capes</textarea>
+        </div>
+      </div>
 
-  <div class="toolbar">
-    <input type="text" id="search" placeholder="Buscar por nombre de mod…">
-    <div class="actions">
-      <button id="expJson">Exportar JSON</button>
-      <button id="expTxt">Exportar resumen (.txt)</button>
+      <div class="zip-panel">
+        <h2>🖥 Configuración del servidor</h2>
+        <div class="opt-grid">
+          <label class="opt-pill"><input type="checkbox" id="optStripClientCfg" checked>
+            <span class="lbl">Limpiar carpetas innecesarias<small>Elimina resourcepacks/, shaderpacks/, screenshots/ y saves/</small></span>
+          </label>
+          <label class="opt-pill"><input type="checkbox" id="optServerProps" checked>
+            <span class="lbl">Ajustar server.properties<small>online-mode=false y valores base si el archivo no existe</small></span>
+          </label>
+          <label class="opt-pill"><input type="checkbox" id="optEula" checked>
+            <span class="lbl">Incluir eula.txt<small>Genera eula.txt con eula=true</small></span>
+          </label>
+        </div>
+        <div class="mc-field">
+          <span>Loader objetivo</span>
+          <select id="mcLoaderSel">
+            <option value="auto">Detectar automáticamente</option>
+            <option value="forge">Forge</option>
+            <option value="fabric">Fabric</option>
+            <option value="neoforge">NeoForge</option>
+            <option value="quilt">Quilt</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="mc-runbar">
+      <button class="btn-main" id="mcConvertBtn" disabled>▶ Procesar y convertir</button>
+      <button class="btn-download" id="mcDownloadBtn">⬇ Descargar .zip de servidor</button>
+      <span class="mc-status" id="mcStatus">Esperando archivo…</span>
+    </div>
+    <div class="mc-progress"><div class="bar" id="mcProgressBar"></div></div>
+
+    <div class="console-wrap">
+      <div class="console-head"><span>Registro de conversión</span><span id="mcLogCount">0 líneas</span></div>
+      <div class="console" id="mcConsole"></div>
     </div>
   </div>
 
-  <div class="zip-panel" id="zipPanel" style="display:none">
-    <h2>📦 Exportar selección como .zip</h2>
-    <div class="zip-options">
-      <label class="zip-opt" id="zopt-client"><input type="checkbox" value="client"> <span style="color:var(--violet)">■</span> Solo Cliente</label>
-      <label class="zip-opt" id="zopt-server"><input type="checkbox" value="server"> <span style="color:#c9a8ff">■</span> Solo Servidor</label>
-      <label class="zip-opt" id="zopt-both"><input type="checkbox" value="both"> <span style="color:var(--cyan)">■</span> Ambos</label>
-      <label class="zip-opt" id="zopt-unclass"><input type="checkbox" value="unclass"> <span style="color:var(--gold)">■</span> Por clasificar</label>
+  <!-- ======================= PÁGINA 2: ORGANIZADOR ======================= -->
+  <div class="page" id="page-organizer">
+    <div class="banner">
+      ℹ️ Primero se lee <b>fabric.mod.json / mods.toml / mcmod.info</b> dentro de cada .jar. Si no queda claro, se calcula el hash del archivo y se intenta identificar automáticamente en <b>Modrinth</b> (sin clave) y, si diste tu clave, en <b>CurseForge</b>. Cada mod que quede "Por clasificar" incluye además un buscador que consulta Modrinth <b>solo por el nombre clave del mod</b> (sin número de versión, versión de Minecraft ni loader) para evitar resultados ruidosos; puedes revisar los resultados y confirmar el correcto con un clic. Si las peticiones automáticas quedan bloqueadas por el visor donde abriste esta página, cada tarjeta deja enlaces para verificar manualmente en una pestaña nueva. Nada se clasifica por adivinanza.
     </div>
-    <div class="zip-actions">
-      <button class="zip-btn" id="zipBtn" disabled>
-        <span class="zip-spinner"></span>
-        <span class="zip-label">Generar .zip</span>
-      </button>
-      <span class="zip-info" id="zipInfo">Selecciona al menos una categoría para continuar.</span>
+
+    <div class="drop" id="drop">
+      <strong>Arrastra aquí tus archivos .jar o un .zip</strong>
+      <small>También puedes hacer clic para elegir archivos · varios .jar a la vez o un .zip con una carpeta mods/</small>
+      <input type="file" id="fileInput" multiple accept=".jar,.zip">
     </div>
+
+    <div class="settings">
+      <label for="cfKey">Clave de CurseForge API (opcional, para el fallback de CurseForge):</label>
+      <input type="password" id="cfKey" placeholder="Pégala aquí — se guarda solo en este navegador">
+    </div>
+
+    <div class="stats" id="stats"></div>
+    <div class="tabs" id="tabs"></div>
+
+    <div class="toolbar">
+      <input type="text" id="search" placeholder="Buscar por nombre de mod…">
+      <div class="actions">
+        <button id="expJson">Exportar JSON</button>
+        <button id="expTxt">Exportar resumen (.txt)</button>
+      </div>
+    </div>
+
+    <div class="zip-panel" id="zipPanel" style="display:none">
+      <h2>📦 Exportar selección como .zip</h2>
+      <div class="zip-options">
+        <label class="zip-opt" id="zopt-client"><input type="checkbox" value="client"> <span style="color:var(--violet)">■</span> Solo Cliente</label>
+        <label class="zip-opt" id="zopt-server"><input type="checkbox" value="server"> <span style="color:#c9a8ff">■</span> Solo Servidor</label>
+        <label class="zip-opt" id="zopt-both"><input type="checkbox" value="both"> <span style="color:var(--cyan)">■</span> Ambos</label>
+        <label class="zip-opt" id="zopt-unclass"><input type="checkbox" value="unclass"> <span style="color:var(--gold)">■</span> Por clasificar</label>
+      </div>
+      <div class="zip-actions">
+        <button class="zip-btn" id="zipBtn" disabled>
+          <span class="zip-spinner"></span>
+          <span class="zip-label">Generar .zip</span>
+        </button>
+        <span class="zip-info" id="zipInfo">Selecciona al menos una categoría para continuar.</span>
+      </div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty">Todavía no hay mods cargados. Suelta tus archivos arriba para empezar.</div>
   </div>
 
-  <div class="grid" id="grid"></div>
-  <div class="empty" id="empty">Todavía no hay mods cargados. Suelta tus archivos arriba para empezar.</div>
 </div>
 
 <script>
+/* ============================================================ */
+/* NAVEGACIÓN PRINCIPAL                                          */
+/* ============================================================ */
+document.querySelectorAll('.toptab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.toptab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('page-' + btn.dataset.page).classList.add('active');
+  });
+});
+
+/* ============================================================ */
+/* PÁGINA 1 — CONVERTIDOR DE MODPACK                              */
+/* ============================================================ */
+(function(){
+  let sourceZip = null, sourceFile = null, detectedFormat = null, resultBlob = null;
+
+  const mcDrop = document.getElementById('mcDrop');
+  const mcFileInput = document.getElementById('mcFileInput');
+  const mcConvertBtn = document.getElementById('mcConvertBtn');
+  const mcDownloadBtn = document.getElementById('mcDownloadBtn');
+  const mcStatus = document.getElementById('mcStatus');
+  const mcProgressBar = document.getElementById('mcProgressBar');
+  const mcConsole = document.getElementById('mcConsole');
+  const mcLogCount = document.getElementById('mcLogCount');
+  let mcLines = 0;
+
+  function mcLog(msg, cls){
+    const div = document.createElement('div');
+    div.className = 'l-' + (cls || 'white');
+    const t = new Date().toLocaleTimeString('es-ES', {hour12:false});
+    div.textContent = `[${t}] ${msg}`;
+    mcConsole.appendChild(div);
+    mcConsole.scrollTop = mcConsole.scrollHeight;
+    mcLines++; mcLogCount.textContent = mcLines + ' líneas';
+  }
+  function mcProgress(pct){ mcProgressBar.style.width = pct + '%'; }
+  function mcSleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+  function mcKeywords(){
+    return document.getElementById('mcKeywordList').value.split('\n').map(s=>s.trim().toLowerCase()).filter(Boolean);
+  }
+  function mcMatch(name, kws){ const n = name.toLowerCase(); return kws.some(k => n.includes(k)); }
+
+  mcDrop.addEventListener('click', () => mcFileInput.click());
+  ['dragenter','dragover'].forEach(ev => mcDrop.addEventListener(ev, e => { e.preventDefault(); mcDrop.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(ev => mcDrop.addEventListener(ev, e => { e.preventDefault(); mcDrop.classList.remove('drag'); }));
+  mcDrop.addEventListener('drop', e => { if(e.dataTransfer.files[0]) mcLoadFile(e.dataTransfer.files[0]); });
+  mcFileInput.addEventListener('change', e => { if(e.target.files[0]) mcLoadFile(e.target.files[0]); });
+
+  async function mcLoadFile(file){
+    if(!/\.(zip|mrpack)$/i.test(file.name)){ mcLog('El archivo debe ser un .zip o .mrpack', 'err'); return; }
+    sourceFile = file;
+    document.getElementById('mcFileName').textContent = file.name + ' — ' + (file.size/1048576).toFixed(1) + ' MB';
+    mcDrop.classList.add('loaded');
+    mcLog(`Archivo cargado: ${file.name}`, 'ok');
+    mcStatus.textContent = 'Analizando archivo…';
+    try{
+      sourceZip = await JSZip.loadAsync(file);
+      if(sourceZip.file('modrinth.index.json')) detectedFormat = 'modrinth';
+      else if(sourceZip.file('manifest.json')) detectedFormat = 'curseforge';
+      else detectedFormat = 'generic';
+      mcLog(`Formato detectado: ${detectedFormat==='modrinth'?'Modrinth (.mrpack)':detectedFormat==='curseforge'?'CurseForge (manifest.json)':'Genérico (carpeta mods/ suelta)'}`, 'dim');
+
+      if(detectedFormat === 'modrinth'){
+        const idx = JSON.parse(await sourceZip.file('modrinth.index.json').async('string'));
+        const deps = idx.dependencies || {};
+        const loader = deps.forge ? 'forge' : deps.fabric ? 'fabric' : deps.quilt ? 'quilt' : deps['neoforge'] ? 'neoforge' : null;
+        if(loader) document.getElementById('mcLoaderSel').value = loader;
+        mcLog(`Pack: ${idx.name||'sin nombre'} · MC ${deps.minecraft||'?'} · loader ${loader||'desconocido'} · ${(idx.files||[]).length} mods listados`, 'dim');
+      } else if(detectedFormat === 'curseforge'){
+        const man = JSON.parse(await sourceZip.file('manifest.json').async('string'));
+        const ml = (man.minecraft && man.minecraft.modLoaders && man.minecraft.modLoaders[0]) ? man.minecraft.modLoaders[0].id : '';
+        if(ml.includes('forge')) document.getElementById('mcLoaderSel').value = ml.includes('neoforge')?'neoforge':'forge';
+        else if(ml.includes('fabric')) document.getElementById('mcLoaderSel').value = 'fabric';
+        mcLog(`Pack: ${man.name||'sin nombre'} · MC ${man.minecraft?.version||'?'} · loader ${ml||'desconocido'} · ${(man.files||[]).length} entradas`, 'dim');
+        mcLog('CurseForge no incluye metadatos client/server por mod; el filtrado usará solo la lista de palabras clave sobre archivos .jar presentes en overrides/.', 'warn');
+      } else {
+        mcLog('No se encontró manifest.json ni modrinth.index.json — se tratará como carpeta de mods suelta.', 'warn');
+      }
+      mcConvertBtn.disabled = false;
+      mcStatus.textContent = 'Listo para convertir.';
+    } catch(e){
+      mcLog('Error al leer el archivo: ' + e.message, 'err');
+      mcStatus.textContent = 'Error al leer el archivo.';
+    }
+  }
+
+  async function mcConvert(){
+    mcConvertBtn.disabled = true;
+    mcDownloadBtn.classList.remove('show');
+    mcStatus.textContent = 'Procesando…';
+    mcProgress(2);
+    const removeClient = document.getElementById('optRemoveClient').checked;
+    const useEnv = document.getElementById('optUseEnv').checked;
+    const listMode = document.querySelector('input[name=mclistmode]:checked').value;
+    const kws = mcKeywords();
+    const fixServerProps = document.getElementById('optServerProps').checked;
+    const stripClientFolders = document.getElementById('optStripClientCfg').checked;
+    const addEula = document.getElementById('optEula').checked;
+    const loaderChoice = document.getElementById('mcLoaderSel').value;
+
+    mcLog('— Iniciando conversión —', 'ok');
+    mcLog('Descomprimiendo modpack de cliente…');
+    await mcSleep(250); mcProgress(12);
+
+    const out = new JSZip();
+    const allPaths = Object.keys(sourceZip.files);
+    let removedCount = 0, keptCount = 0;
+
+    if(detectedFormat === 'modrinth'){
+      mcLog('Filtrando mods según metadatos de Modrinth y reglas configuradas…');
+      const idx = JSON.parse(await sourceZip.file('modrinth.index.json').async('string'));
+      const files = idx.files || [];
+      const keptFiles = [];
+      for(const f of files){
+        const env = f.env || {};
+        let remove = false;
+        if(removeClient && useEnv && env.server === 'unsupported') remove = true;
+        const fname = (f.path||'').split('/').pop() || '';
+        const kwHit = mcMatch(fname, kws);
+        if(removeClient && listMode === 'blacklist' && kwHit) remove = true;
+        if(removeClient && listMode === 'whitelist' && !kwHit && env.server !== 'required' && env.server !== 'optional') remove = true;
+        if(remove){ removedCount++; mcLog(`  ✗ Excluido: ${fname}`, 'warn'); }
+        else { keptFiles.push(f); keptCount++; }
+      }
+      idx.files = keptFiles;
+      idx.name = (idx.name||'modpack') + ' (Server)';
+      out.file('modrinth.index.json', JSON.stringify(idx, null, 2));
+      mcLog(`Índice reescrito: ${keptCount} mods conservados, ${removedCount} excluidos.`, 'ok');
+      mcProgress(45);
+
+      mcLog('Copiando overrides/ y aplicando filtros de carpetas…');
+      for(const path of allPaths){
+        const entry = sourceZip.files[path];
+        if(entry.dir) continue;
+        if(!path.startsWith('overrides/') && !path.startsWith('client-overrides/')) continue;
+        const rel = path.replace(/^overrides\//,'').replace(/^client-overrides\//,'');
+        if(stripClientFolders && /^(resourcepacks|shaderpacks|screenshots|saves)\//i.test(rel)) continue;
+        if(removeClient && /^mods\//i.test(rel) && listMode==='blacklist' && mcMatch(rel, kws)){ removedCount++; mcLog(`  ✗ Excluido (override): ${rel}`, 'warn'); continue; }
+        const data = await entry.async('uint8array');
+        out.file('overrides/' + rel, data);
+      }
+      await mcSleep(200); mcProgress(65);
+
+    } else if(detectedFormat === 'curseforge'){
+      const man = JSON.parse(await sourceZip.file('manifest.json').async('string'));
+      man.name = (man.name||'modpack') + ' (Server)';
+      out.file('manifest.json', JSON.stringify(man, null, 2));
+      mcLog('Copiando overrides/ y filtrando .jar por palabras clave…');
+      for(const path of allPaths){
+        const entry = sourceZip.files[path];
+        if(entry.dir) continue;
+        if(!path.startsWith('overrides/')) continue;
+        const rel = path.replace(/^overrides\//,'');
+        if(stripClientFolders && /^(resourcepacks|shaderpacks|screenshots|saves)\//i.test(rel)) continue;
+        if(removeClient && /\.jar$/i.test(rel) && listMode==='blacklist' && mcMatch(rel, kws)){ removedCount++; mcLog(`  ✗ Excluido: ${rel}`, 'warn'); continue; }
+        if(removeClient && /\.jar$/i.test(rel) && listMode==='whitelist' && !mcMatch(rel, kws)){ removedCount++; mcLog(`  ✗ Excluido (no está en lista blanca): ${rel}`, 'warn'); continue; }
+        if(/\.jar$/i.test(rel)) keptCount++;
+        const data = await entry.async('uint8array');
+        out.file('overrides/' + rel, data);
+      }
+      await mcSleep(200); mcProgress(65);
+
+    } else {
+      mcLog('Filtrando archivos .jar en la carpeta mods/…');
+      for(const path of allPaths){
+        const entry = sourceZip.files[path];
+        if(entry.dir) continue;
+        if(stripClientFolders && /^(resourcepacks|shaderpacks|screenshots|saves)\//i.test(path)) continue;
+        if(/\.jar$/i.test(path)){
+          const kwHit = mcMatch(path, kws);
+          const remove = removeClient && ((listMode==='blacklist' && kwHit) || (listMode==='whitelist' && !kwHit));
+          if(remove){ removedCount++; mcLog(`  ✗ Excluido: ${path}`, 'warn'); continue; }
+          keptCount++;
+        }
+        const data = await entry.async('uint8array');
+        out.file(path, data);
+      }
+      await mcSleep(200); mcProgress(65);
+    }
+
+    mcLog('Ajustando configuración de servidor…');
+    if(fixServerProps){
+      let props = '';
+      const existing = out.file('overrides/server.properties') || out.file('server.properties');
+      if(existing){
+        props = await existing.async('string');
+        if(!/online-mode\s*=/.test(props)) props += '\nonline-mode=false\n';
+        else props = props.replace(/online-mode\s*=\s*true/i, 'online-mode=false');
+      } else {
+        props = 'online-mode=false\ndifficulty=normal\nmax-players=20\nallow-flight=true\nmotd=Servidor generado con Weddell Tools\n';
+      }
+      const target = detectedFormat === 'generic' ? 'server.properties' : 'overrides/server.properties';
+      out.file(target, props);
+      mcLog('server.properties actualizado (online-mode=false).', 'ok');
+    }
+    if(addEula){
+      out.file(detectedFormat==='generic' ? 'eula.txt' : 'overrides/eula.txt', 'eula=true\n');
+      mcLog('eula.txt generado.');
+    }
+    mcProgress(80);
+
+    mcLog(`Loader objetivo: ${loaderChoice === 'auto' ? document.getElementById('mcLoaderSel').value : loaderChoice}.`, 'dim');
+    mcLog('Generando ZIP para servidor…');
+    await mcSleep(150);
+    resultBlob = await out.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}});
+    mcProgress(100);
+    mcLog(`— Conversión completada — ${keptCount} mods conservados, ${removedCount} excluidos.`, 'ok');
+    mcStatus.textContent = `Listo · ${(resultBlob.size/1048576).toFixed(1)} MB`;
+    mcDownloadBtn.classList.add('show');
+    mcConvertBtn.disabled = false;
+  }
+
+  mcConvertBtn.addEventListener('click', mcConvert);
+  mcDownloadBtn.addEventListener('click', () => {
+    if(!resultBlob) return;
+    const url = URL.createObjectURL(resultBlob);
+    const a = document.createElement('a');
+    a.href = url; a.download = (sourceFile ? sourceFile.name.replace(/\.(zip|mrpack)$/i,'') : 'modpack') + '-server.zip';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    mcLog('Descarga iniciada: ' + a.download, 'ok');
+  });
+
+  mcLog('Herramienta lista. Arrastra un .zip de modpack para comenzar.', 'dim');
+})();
+
+/* ============================================================ */
+/* PÁGINA 2 — ORGANIZADOR DE MODS                                 */
+/* ============================================================ */
 let mods = [];
 let modBytes = new Map(); // id -> ArrayBuffer, conservado en sesión para poder empaquetar .zips
 let activeTab = 'all';
@@ -227,11 +609,11 @@ function cleanKeyFromFilename(filename){
   tokens = tokens.filter(tok => {
     const lower = tok.toLowerCase();
     if(loaderWords.includes(lower) || stageWords.includes(lower)) return false;
-    if(/^\d+$/.test(tok)) return false;                          // número suelto: 20, 105, 2...
-    if(/^v?\d+(\.\d+){0,3}[a-z0-9]*$/i.test(tok)) return false;   // 1.20.1, v2, 2.0.4, 20w14a-like
-    if(/^mc ?\d.*$/i.test(lower)) return false;                  // mc1.20
-    if(/^(alpha|beta|snapshot|dev|indev|pre|rc)\d*$/i.test(tok)) return false; // etapas de build
-    if(/^[a-f0-9]{6,}$/i.test(tok) && /\d/.test(tok)) return false; // hash de build
+    if(/^\d+$/.test(tok)) return false;
+    if(/^v?\d+(\.\d+){0,3}[a-z0-9]*$/i.test(tok)) return false;
+    if(/^mc ?\d.*$/i.test(lower)) return false;
+    if(/^(alpha|beta|snapshot|dev|indev|pre|rc)\d*$/i.test(tok)) return false;
+    if(/^[a-f0-9]{6,}$/i.test(tok) && /\d/.test(tok)) return false;
     return true;
   });
   const result = tokens.join(' ').replace(/\s+/g, ' ').trim();
@@ -403,7 +785,7 @@ function countFor(id){ return id==='all' ? mods.length : mods.filter(m=>m.enviro
 function renderTabs(){
   document.getElementById('tabs').innerHTML = TABS.map(t => `
     <button class="tab ${activeTab===t.id?'active':''}" data-tab="${t.id}">${t.label}<span class="n">${countFor(t.id)}</span></button>`).join('');
-  document.querySelectorAll('.tab').forEach(b => b.onclick = () => { activeTab = b.dataset.tab; render(); });
+  document.querySelectorAll('#tabs .tab').forEach(b => b.onclick = () => { activeTab = b.dataset.tab; render(); });
 }
 function renderStats(){
   const c = { client: countFor('client'), server: countFor('server'), both: countFor('both'), unclass: countFor('unclass') };
@@ -595,7 +977,6 @@ async function exportZip(){
 }
 zipBtn.addEventListener('click', exportZip);
 
-// actualizar panel cada vez que cambian los mods
 const _origRender = render;
 render = function(){ _origRender(); updateZipPanel(); };
 
