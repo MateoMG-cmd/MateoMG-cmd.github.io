@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Portafolio · Mod Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a13;--ink:#f2f3fa;--mut:#9a9cb8;--line:#4f4f80;--iris:#6199f6;--card:#08080c;--ok:#6ee7a8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="light"],:root:not([data-theme="dark"]) .x{}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+body{margin:0;background:radial-gradient(1200px 700px at 80% -10%,#1d1d4a 0%,transparent 60%),radial-gradient(900px 600px at -10% 40%,#16163a 0%,transparent 55%),var(--bg);color:var(--ink);font:300 17px/1.55 Geist,-apple-system,"SF Pro Text",system-ui,sans-serif;letter-spacing:-.01em;overflow-x:hidden}
+.mono{font-family:"Space Mono",ui-monospace,monospace;text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:var(--iris)}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;justify-content:space-between;align-items:center;gap:12px;margin:14px auto 0;width:min(1120px,calc(100% - 32px));padding:10px 14px 10px 20px;border:1px solid var(--line);border-radius:980px;background:rgba(10,10,19,.7);backdrop-filter:blur(18px)}
+nav a{color:var(--mut);text-decoration:none;font-size:14px;margin-left:16px;transition:color .2s}
+nav a:hover{color:var(--ink)}
+.wrap{width:min(1120px,calc(100% - 32px));margin:0 auto}
+section{padding:110px 0 40px}
+h1{font-weight:300;font-size:clamp(44px,9vw,116px);line-height:.98;letter-spacing:-.045em;margin:18px 0 26px}
+h1 .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em}
+h1 .w>i{display:inline-block;font-style:normal;transform:translateY(105%)}
+h2{font-weight:300;font-size:clamp(30px,5vw,56px);letter-spacing:-.035em;line-height:1.05;margin:10px 0 36px}
+.sub{max-width:560px;color:var(--mut);font-size:19px}
+.pill{display:inline-flex;align-items:center;gap:8px;border-radius:980px;padding:12px 24px;font:400 15px Geist,sans-serif;letter-spacing:-.01em;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;text-decoration:none;transition:transform .18s cubic-bezier(.23,1,.32,1),background .2s,opacity .2s}
+.pill:hover{background:rgba(97,153,246,.12)}
+.pill:active{transform:scale(.97)}
+.pill.p{background:var(--iris);border-color:var(--iris);color:#06101f;font-weight:500}
+.pill.p:hover{background:#7aabf8}
+.pill[disabled]{opacity:.4;pointer-events:none}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:20px;perspective:1100px}
+.card{position:relative;border:1px solid var(--line);border-radius:20px;padding:26px;background:var(--card);backdrop-filter:blur(10px);box-shadow:0 0 70px -24px rgba(97,153,246,.35);transition:transform .25s cubic-bezier(.23,1,.32,1),box-shadow .25s;transform-style:preserve-3d;will-change:transform}
+.card:hover{box-shadow:0 0 90px -16px rgba(97,153,246,.5)}
+.card h3{font-weight:400;font-size:22px;letter-spacing:-.025em;margin:8px 0}
+.card p{color:var(--mut);margin:0 0 16px;font-size:15px}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:980px;padding:2px 11px;margin:0 6px 6px 0;font:12px "Space Mono",monospace;color:var(--mut)}
+.suite{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
+.drop{border:1.5px dashed var(--line);border-radius:16px;padding:34px 18px;text-align:center;color:var(--mut);cursor:pointer;transition:border-color .2s,background .2s,transform .2s}
+.drop.on,.drop:hover{border-color:var(--iris);background:rgba(97,153,246,.07)}
+.list{margin:16px 0;max-height:260px;overflow:auto;font-size:14px}
+.row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(79,79,128,.35)}
+.row span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.b{font:11px "Space Mono",monospace;text-transform:uppercase;border-radius:980px;padding:2px 10px;border:1px solid var(--line);flex:none}
+.b.Cliente{color:#f6b861}.b.Servidor{color:var(--ok)}.b.Ambos{color:var(--iris)}
+.sw{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+.sw input{appearance:none;width:51px;height:31px;border-radius:980px;background:#2a2a45;position:relative;cursor:pointer;transition:background .25s;flex:none}
+.sw input::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;transition:transform .25s cubic-bezier(.23,1,.32,1)}
+.sw input:checked{background:var(--iris)}
+.sw input:checked::after{transform:translateX(20px)}
+.sw input:focus-visible,.pill:focus-visible,a:focus-visible{outline:2px solid var(--iris);outline-offset:3px}
+.note{font-size:13px;color:var(--mut);margin-top:12px}
+.tl{border-left:1px solid var(--line);margin-left:6px;padding-left:28px}
+.tl .it{position:relative;margin-bottom:34px}
+.tl .it::before{content:"";position:absolute;left:-34px;top:8px;width:11px;height:11px;border-radius:50%;background:var(--iris);box-shadow:0 0 18px var(--iris)}
+.tabs{display:inline-flex;gap:4px;padding:5px;border:1px solid var(--line);border-radius:980px;margin-bottom:22px;max-width:100%;overflow-x:auto}
+.tabs button{border:0;background:transparent;color:var(--mut);font:400 14px Geist,sans-serif;padding:10px 20px;border-radius:980px;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s}
+.tabs button[aria-selected=true]{background:var(--iris);color:#06101f;font-weight:500}
+.suite{grid-template-columns:minmax(0,1fr)}
+footer{padding:80px 0 60px;color:var(--mut);font-size:14px}
+textarea,input[type=password]{width:100%;background:rgba(10,10,19,.8);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:14px;font:13px/1.5 "Space Mono",monospace}
+textarea{min-height:380px;resize:vertical}
+#admin{display:none}
+body.adm #admin{display:block}
+body.adm #site{display:none}
+[data-r]{opacity:0}
+@media (prefers-reduced-motion:reduce){[data-r]{opacity:1}h1 .w>i{transform:none}.card,.pill{transition:none}}
+</style>
+</head>
+<body>
+<div id="site">
+<nav><span class="mono">Portfolio / Dev</span><span><a href="#proyectos">Proyectos</a><a href="#suite">Mod Suite</a><a href="#exp">Experiencia</a><a href="#/admin">Admin</a></span></nav>
+
+<header class="wrap" style="padding:120px 0 40px">
+  <div class="mono" id="h-eye"></div>
+  <h1 id="h-title" aria-label=""></h1>
+  <p class="sub" id="h-sub" data-r></p>
+  <div class="ctas" data-r><a class="pill p" href="#suite">Probar la Mod Suite</a><a class="pill" href="#proyectos">Ver proyectos</a></div>
+</header>
+
+<section id="proyectos" class="wrap"><div class="mono" data-r>01 / Proyectos</div><h2 data-r>Trabajo seleccionado</h2><div class="grid" id="projects"></div></section>
+
+<section id="suite" class="wrap">
+  <div class="mono" data-r>02 / Herramientas</div><h2 data-r>Mod Suite</h2>
+  <div class="tabs" role="tablist" data-r><button role="tab" aria-selected="true" data-t="tab1">Separador</button><button role="tab" aria-selected="false" data-t="tab2">Integridad SHA-256</button></div>
+  <div class="suite">
+    <div class="card" id="tab1">
+      <div class="mono">Separador de mods</div>
+      <h3>Cliente / Servidor / Ambos</h3>
+      <p>Sube .jar sueltos o un .zip (también modpacks). Se lee fabric.mod.json, quilt.mod.json y mods.toml localmente; nada sale de tu navegador.</p>
+      <label class="drop" id="drop1" tabindex="0">Arrastra archivos aquí o haz clic<input id="f1" type="file" accept=".jar,.zip" multiple hidden></label>
+      <div class="list" id="list1" aria-live="polite"></div>
+      <div id="sw1" hidden>
+        <label class="sw"><span>Servidor</span><input type="checkbox" data-c="Servidor" checked></label>
+        <label class="sw"><span>Ambos</span><input type="checkbox" data-c="Ambos" checked></label>
+        <label class="sw"><span>Cliente</span><input type="checkbox" data-c="Cliente"></label>
+        <div class="ctas" style="margin-top:14px"><button class="pill p" id="exp1">Exportar .zip filtrado</button></div>
+      </div>
+      <div class="note" id="n1"></div>
+    </div>
+    <div class="card" id="tab2" hidden>
+      <div class="mono">Verificador de integridad</div>
+      <h3>SHA-256 por archivo</h3>
+      <p>Calcula huellas SHA-256 de tus mods y exporta un checksums.txt para publicar junto a tus releases, así los usuarios pueden verificar sus descargas.</p>
+      <label class="drop" id="drop2" tabindex="0">Arrastra archivos aquí o haz clic<input id="f2" type="file" multiple hidden></label>
+      <div class="list" id="list2" aria-live="polite"></div>
+      <div class="ctas"><button class="pill p" id="exp2" disabled>Exportar checksums.txt</button></div>
+      <div class="note">No modifica ni cifra los archivos originales.</div>
+    </div>
+  </div>
+</section>
+
+<section id="exp" class="wrap"><div class="mono" data-r>03 / Experiencia</div><h2 data-r>Habilidades y trayectoria</h2>
+  <div class="tl" id="timeline"></div><div id="skills" data-r></div></section>
+
+<footer class="wrap" data-r><div class="mono">Habilidades y contacto</div><p id="contact"></p></footer>
+</div>
+
+<div id="admin" class="wrap" style="padding:60px 0">
+  <div class="mono">/admin</div><h2>Panel de administración</h2>
+  <div id="login" class="card" style="max-width:420px"><p>Código de acceso</p><input type="password" id="pw" autocomplete="off"><div class="ctas"><button class="pill p" id="go">Entrar</button><a class="pill" href="#/">Volver</a></div><div class="note" id="pn"></div></div>
+  <div id="editor" hidden>
+    <p class="sub">Edita el JSON y guarda. Los cambios se almacenan en este navegador (localStorage).</p>
+    <textarea id="json" spellcheck="false"></textarea>
+    <div class="ctas"><button class="pill p" id="save">Guardar</button><button class="pill" id="reset">Restaurar valores</button><a class="pill" href="#/">Ver sitio</a></div>
+    <div class="note" id="an"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+const DEF={profile:{eyebrow:"Desarrollador · Creador de mods",title:"Construyo herramientas que se sienten inevitables",sub:"Ingeniero frontend y modder. Diseño interfaces precisas y utilidades para la comunidad de Minecraft.",contact:"hola@tudominio.dev"},
+projects:[{name:"Proyecto Uno",desc:"Descripción breve del proyecto y su impacto.",tags:["React","WebGL"]},{name:"Proyecto Dos",desc:"Otra pieza destacada de tu portafolio.",tags:["Fabric","Java"]},{name:"Proyecto Tres",desc:"Herramienta de código abierto para la comunidad.",tags:["TypeScript","Node"]}],
+timeline:[{year:"2025",role:"Frontend Engineer",desc:"Interfaces de alto rendimiento y sistemas de diseño."},{year:"2022",role:"Mod Developer",desc:"Mods para Fabric y Forge con miles de descargas."},{year:"2020",role:"Freelance",desc:"Sitios web y herramientas a medida."}],
+skills:["JavaScript","TypeScript","React","GSAP","Java","Fabric","Forge","UI/UX"]};
+const KEY="pf-data-v1";
+let D;try{D=JSON.parse(localStorage.getItem(KEY))||DEF}catch(e){D=DEF}
+const $=s=>document.querySelector(s),el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+function render(){
+ const p=D.profile||{};$("#h-eye").textContent=p.eyebrow||"";$("#h-sub").textContent=p.sub||"";$("#contact").textContent=p.contact||"";
+ const h=$("#h-title");h.textContent="";h.setAttribute("aria-label",p.title||"");
+ (p.title||"").split(" ").forEach(w=>{const s=el("span","w"),i=el("i","",w+" ");s.append(i);s.setAttribute("aria-hidden","true");h.append(s)});
+ const pr=$("#projects");pr.textContent="";
+ (D.projects||[]).forEach(x=>{const c=el("article","card");c.dataset.r="";c.append(el("div","mono","Proyecto"),el("h3","",x.name),el("p","",x.desc));(x.tags||[]).forEach(t=>c.append(el("span","tag",t)));pr.append(c)});
+ const tl=$("#timeline");tl.textContent="";
+ (D.timeline||[]).forEach(x=>{const i=el("div","it");i.dataset.r="";i.append(el("div","mono",x.year),el("h3","",x.role),el("p","sub",x.desc));tl.append(i)});
+ const sk=$("#skills");sk.textContent="";(D.skills||[]).forEach(t=>sk.append(el("span","tag",t)));
+}
+render();
+
+/* ---- Movimiento ---- */
+function motion(){
+ if(reduce||!window.gsap){document.querySelectorAll("[data-r]").forEach(e=>e.style.opacity=1);return}
+ gsap.registerPlugin(ScrollTrigger);
+ try{const l=new Lenis({lerp:.1});l.on("scroll",ScrollTrigger.update);gsap.ticker.add(t=>l.raf(t*1000));gsap.ticker.lagSmoothing(0)}catch(e){}
+ gsap.to("#h-title .w>i",{y:0,duration:.9,ease:"power3.out",stagger:.07,delay:.1});
+ document.querySelectorAll("[data-r]").forEach(e=>gsap.fromTo(e,{opacity:0,y:28},{opacity:1,y:0,duration:.8,ease:"power3.out",scrollTrigger:{trigger:e,start:"top 88%",once:true}}));
+ document.querySelectorAll(".card").forEach(c=>{
+  c.addEventListener("pointermove",e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=`rotateY(${x*5}deg) rotateX(${-y*5}deg) scale(1.012)`});
+  c.addEventListener("pointerleave",()=>c.style.transform="")});
+}
+
+/* ---- Utilidades de archivos ---- */
+async function dl(name,blob){
+ try{const d=await claude.use("downloads");if(d){await d.save({filename:name,data:blob});return true}}catch(e){if(e&&e.code==="declined")return true}
+ try{const a=el("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();return true}catch(e){return false}
+}
+function wire(drop,input,fn){
+ const f=fs=>fn([...fs]);input.onchange=()=>{f(input.files);input.value=""};
+ drop.onclick=e=>{if(e.target!==input)input.click()};drop.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();input.click()}};
+ drop.ondragover=e=>{e.preventDefault();drop.classList.add("on")};drop.ondragleave=()=>drop.classList.remove("on");
+ drop.ondrop=e=>{e.preventDefault();drop.classList.remove("on");f(e.dataTransfer.files)};
+}
+
+/* ---- A. Separador ---- */
+let mods=[];
+function sideFromToml(t){
+ const blocks=t.split(/\[\[dependencies\./).slice(1);
+ for(const b of blocks){if(/modId\s*=\s*["'](minecraft|forge|neoforge)["']/.test(b)){const m=b.match(/side\s*=\s*["'](\w+)["']/i);if(m){const s=m[1].toUpperCase();return s==="CLIENT"?"Cliente":s==="SERVER"?"Servidor":"Ambos"}}}
+ return null;
+}
+async function classify(buf,name){
+ let side="Ambos",label=name;
+ try{
+  const z=await JSZip.loadAsync(buf);const rd=async n=>{const f=z.file(n);return f?await f.async("string"):null};
+  let t;
+  if(t=await rd("fabric.mod.json")){const j=JSON.parse(t);label=j.name||j.id||name;const e=j.environment;side=e==="client"?"Cliente":e==="server"?"Servidor":"Ambos"}
+  else if(t=await rd("quilt.mod.json")){const j=JSON.parse(t);const e=j.minecraft&&j.minecraft.environment;label=(j.quilt_loader&&j.quilt_loader.metadata&&j.quilt_loader.metadata.name)||name;side=e==="client"?"Cliente":e==="dedicated_server"?"Servidor":"Ambos"}
+  else if(t=(await rd("META-INF/neoforge.mods.toml"))||(await rd("META-INF/mods.toml"))){const n=t.match(/displayName\s*=\s*["']([^"']+)/);if(n)label=n[1];side=sideFromToml(t)||"Ambos"}
+  else if(t=await rd("mcmod.info")){try{const j=JSON.parse(t);const a=Array.isArray(j)?j[0]:(j.modList||[])[0];if(a&&a.name)label=a.name}catch(e){}}
+ }catch(e){return null}
+ return{name,label,side,buf};
+}
+async function ingest(files){
+ $("#n1").textContent="Analizando…";
+ for(const f of files){
+  const buf=await f.arrayBuffer();
+  if(/\.zip$/i.test(f.name)){
+   try{const z=await JSZip.loadAsync(buf);
+    for(const n of Object.keys(z.files)){if(!/\.jar$/i.test(n)||z.files[n].dir)continue;
+     const m=await classify(await z.files[n].async("arraybuffer"),n.split("/").pop());if(m)mods.push(m)}}catch(e){}
+  }else{const m=await classify(buf,f.name);if(m)mods.push(m)}
+ }
+ const seen=new Set();mods=mods.filter(m=>!seen.has(m.name)&&seen.add(m.name));
+ draw1();
+}
+function draw1(){
+ const l=$("#list1");l.textContent="";
+ mods.forEach(m=>{const r=el("div","row");r.append(el("span","",m.label),el("span","b "+m.side,m.side));l.append(r)});
+ $("#sw1").hidden=!mods.length;
+ const c={Cliente:0,Servidor:0,Ambos:0};mods.forEach(m=>c[m.side]++);
+ $("#n1").textContent=mods.length?`${mods.length} mods · ${c.Servidor} servidor · ${c.Ambos} ambos · ${c.Cliente} cliente. Los .jar sin metadatos de entorno se marcan como Ambos.`:"";
+}
+$("#exp1").onclick=async()=>{
+ const on=[...document.querySelectorAll("#sw1 input:checked")].map(i=>i.dataset.c);
+ const sel=mods.filter(m=>on.includes(m.side));
+ if(!sel.length){$("#n1").textContent="Selecciona al menos una categoría con mods.";return}
+ const z=new JSZip();sel.forEach(m=>z.file(m.name,m.buf));
+ const b=await z.generateAsync({type:"blob"});
+ const ok=await dl("mods-"+on.join("-").toLowerCase()+".zip",b);
+ $("#n1").textContent=ok?`Exportados ${sel.length} mods.`:"No se pudo iniciar la descarga.";
+};
+wire($("#drop1"),$("#f1"),ingest);
+
+/* ---- B. Integridad SHA-256 ---- */
+let sums=[];
+wire($("#drop2"),$("#f2"),async fs=>{
+ for(const f of fs){const h=await crypto.subtle.digest("SHA-256",await f.arrayBuffer());
+  sums.push({n:f.name,h:[...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,"0")).join("")})}
+ const l=$("#list2");l.textContent="";
+ sums.forEach(s=>{const r=el("div","row");r.append(el("span","",s.n),el("span","mono",s.h.slice(0,12)+"…"));l.append(r)});
+ $("#exp2").disabled=!sums.length;
+});
+$("#exp2").onclick=()=>dl("checksums.txt",new Blob([sums.map(s=>s.h+"  "+s.n).join("\n")+"\n"],{type:"text/plain"}));
+
+/* ---- Admin ---- */
+const PASS="admin";
+function route(){
+ const a=location.hash==="#/admin";document.body.classList.toggle("adm",a);
+ if(a){$("#editor").hidden=!window._ok;$("#login").hidden=!!window._ok;$("#json").value=JSON.stringify(D,null,2)}
+ window.scrollTo(0,0);
+}
+addEventListener("hashchange",route);route();
+$("#go").onclick=()=>{if($("#pw").value===PASS){window._ok=1;route()}else $("#pn").textContent="Código incorrecto."};
+$("#pw").onkeydown=e=>{if(e.key==="Enter")$("#go").click()};
+$("#save").onclick=()=>{try{D=JSON.parse($("#json").value);try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}render();$("#an").textContent="Guardado.";requestAnimationFrame(()=>document.querySelectorAll("[data-r]").forEach(e=>e.style.opacity=1))}catch(e){$("#an").textContent="JSON inválido: "+e.message}};
+$("#reset").onclick=()=>{D=DEF;try{localStorage.removeItem(KEY)}catch(e){}render();$("#json").value=JSON.stringify(D,null,2);$("#an").textContent="Valores restaurados."};
+
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+ document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
+ ["tab1","tab2"].forEach(id=>{const c=document.getElementById(id);c.hidden=id!==b.dataset.t;if(!c.hidden&&!reduce&&window.gsap)gsap.fromTo(c,{opacity:0,y:14},{opacity:1,y:0,duration:.35,ease:"power3.out"})})});
+motion();
+</script>
+</body>
+</html>
